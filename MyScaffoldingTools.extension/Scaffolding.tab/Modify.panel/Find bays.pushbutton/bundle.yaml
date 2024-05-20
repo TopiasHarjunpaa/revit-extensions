@@ -1,5 +1,5 @@
 title:
-  en_us: Find bay combinations
+  en_us: Find bays
 tooltip:
   en_us: >-
     Finds the most optimal bay combination based on targeted lengtha and tolerance.

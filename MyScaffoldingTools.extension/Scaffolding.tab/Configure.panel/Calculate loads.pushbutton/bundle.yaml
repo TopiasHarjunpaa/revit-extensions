@@ -1,5 +1,5 @@
 title:
-  en_us: Calculate load information
+  en_us: Calculate loads
 tooltip:
   en_us: >-
     Calculates scaffolding load information according to EN 1991-1-4, EN 16508, and EN 12811-1. Updates Revit load parameters and fills load information sheet.

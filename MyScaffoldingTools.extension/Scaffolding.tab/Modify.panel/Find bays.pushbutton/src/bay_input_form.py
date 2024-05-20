@@ -10,8 +10,8 @@ from System.Drawing import Point, Size
 
 class BayForm(Form):
     def __init__(self):
-        self.Text = "Bay Distance Information"
-        self.Size = Size(450, 800)
+        self.Text = "Find bays"
+        self.Size = Size(300, 500)
 
         labels = [
             ("Bay: 0,154 m", True),
@@ -37,7 +37,7 @@ class BayForm(Form):
             self.Controls.Add(label)
 
             checkbox = CheckBox()
-            checkbox.Location = Point(350, y_offset)
+            checkbox.Location = Point(210, y_offset)
             checkbox.Checked = default_value
             self.Controls.Add(checkbox)
             self.check_boxes.append(checkbox)
@@ -51,7 +51,8 @@ class BayForm(Form):
         self.Controls.Add(targeted_distance_label)
 
         self.targeted_distance_textbox = TextBox()
-        self.targeted_distance_textbox.Location = Point(350, y_offset)
+        self.targeted_distance_textbox.Location = Point(180, y_offset)
+        self.targeted_distance_textbox.Size = Size(70, 30)
         self.targeted_distance_textbox.Text = "30000"
         self.Controls.Add(self.targeted_distance_textbox)
         
@@ -64,21 +65,22 @@ class BayForm(Form):
         self.Controls.Add(tolerance_label)
 
         self.tolerance_textbox = TextBox()
-        self.tolerance_textbox.Location = Point(350, y_offset)
+        self.tolerance_textbox.Location = Point(180, y_offset)
+        self.tolerance_textbox.Size = Size(70,30)
         self.tolerance_textbox.Text = "100"
         self.Controls.Add(self.tolerance_textbox)
         
-        y_offset += 30
+        y_offset += 50
 
         self.ok_button = Button()
         self.ok_button.Text = "OK"
-        self.ok_button.Location = Point(125, y_offset)
+        self.ok_button.Location = Point(60, y_offset)
         self.ok_button.Click += self.ok_button_click
         self.Controls.Add(self.ok_button)
 
         self.cancel_button = Button()
         self.cancel_button.Text = "Cancel"
-        self.cancel_button.Location = Point(225, y_offset)
+        self.cancel_button.Location = Point(150, y_offset)
         self.cancel_button.Click += self.cancel_button_click
         self.Controls.Add(self.cancel_button)
 
