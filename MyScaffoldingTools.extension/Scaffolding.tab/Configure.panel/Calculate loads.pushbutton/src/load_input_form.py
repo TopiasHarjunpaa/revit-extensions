@@ -138,17 +138,10 @@ def validate_text_input(key, input_str):
     input_str = input_str.replace(",", ".")
 
     try:
-        if key in ["A2", "A3", "B1", "B3"]:
-            value = int(float(input_str))
-            if value >= 0:
-                return value
-            else:
-                return None
+        value = float(input_str)
+        if value >= 0.0:
+            return value
         else:
-            value = float(input_str)
-            if value >= 0.0:
-                return value
-            else:
                 return None
     except (ValueError, KeyError):
         return None

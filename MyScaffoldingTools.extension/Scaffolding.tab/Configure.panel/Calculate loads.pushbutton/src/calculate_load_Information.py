@@ -214,6 +214,7 @@ def format_imposed_loads(imposed_load):
     Returns:
         dict: Multiline string of the imposed load information.
     """
+
     combination_factor = "1,00"
     if imposed_load <= 75:
         combination_factor = "0,00"
@@ -222,14 +223,14 @@ def format_imposed_loads(imposed_load):
     if 200 < imposed_load <= 600:
         combination_factor = "0,50"
 
-    return {"Imposed loads": "{:.2f}".format(float(imposed_load / 100)).replace(".", ","), "Imposed load combination factor": combination_factor}
+    return {"Imposed loads": "{:.2f}".format(imposed_load / 100).replace(".", ","), "Imposed load combination factor": combination_factor}
 
 def format_consequence_class(consequence_class):
     """Calculates K factor according to consequence class based on EN 1990 and creates response
         in dictionary format.
 
     Args:
-        consequence_class (int): _description_
+        consequence_class (int): Consequence class (CC1, CC2, or CC3)
 
     Returns:
         dict: Dictionary where key is formatted consequence class and value is K factor.
@@ -272,12 +273,12 @@ def format_load_parameters(
         formatted_load_params["{} load".format(key)] = "{:.2f}".format(value * line_load).replace(".", ",")
 
     formatted_load_params["Terrain category"] = ["0", "I", "II", "III", "IV"][terrain_category]
-    formatted_load_params["Roof angle"] = "{:.2f}".format(float(angle)).replace(".", ",")
-    formatted_load_params["Bay length"] = "{:.2f}".format(float(bay_length / 1000)).replace(".", ",")
-    formatted_load_params["Roof width"] = "{:.2f}".format(float(roof_width / 1000)).replace(".", ",")
-    formatted_load_params["Snow load"] = "{:.2f}".format(float(snow_load / 100)).replace(".", ",")
-    formatted_load_params["Return period"] = "{:.0f}".format(float(return_period)).replace(".", ",")
-    formatted_load_params["Height above ground"] = "{:.0f}".format(float(height)).replace(".", ",")
+    formatted_load_params["Roof angle"] = "{:.2f}".format(angle).replace(".", ",")
+    formatted_load_params["Bay length"] = "{:.2f}".format(bay_length / 1000).replace(".", ",")
+    formatted_load_params["Roof width"] = "{:.2f}".format(roof_width / 1000).replace(".", ",")
+    formatted_load_params["Snow load"] = "{:.2f}".format(snow_load / 100).replace(".", ",")
+    formatted_load_params["Return period"] = "{:.0f}".format(return_period).replace(".", ",")
+    formatted_load_params["Height above ground"] = "{:.0f}".format(height).replace(".", ",")
 
     return formatted_load_params
 
@@ -289,7 +290,7 @@ def calculate_load_information(load_input):
     fundamental_basic_wind_velocity = load_input["B1"]
     terrain_category = load_input["B2"]
     return_period = load_input["B3"]
-    seasonal_factor = load_input["A4"]
+    seasonal_factor = load_input["B4"]
     orography_factor = load_input["B5"]
     height = load_input["C1"]
     roof_width = load_input["C2"]
