@@ -25,12 +25,34 @@ def get_project_language():
     return "ENG"
 
 def format_output_filename(language="ENG"):
+    """Formats material list filename based on Revit model file name. Additionally, makes few simple checks if the
+    predefined Revit file naming conventions are followed and notifies user if conventions are not followed.
+
+    1. Obtain original Revit filename
+    2. Remove .rvt suffix from the Revit filename
+    3. Remove M-files ID suffix if exists (occurs when file is opened through M-files)
+    4. Check following naming conventions:
+        - Filename can not contain other than characters and alphanumerics
+        - Filename should start with capital letter
+        - Filename can contain zero or one underscore (if there are multiple files for different phases)
+    5. Adds translated "Material list" text with underscore after the filename. Puts it before "_PhaseX" if phasing exists.
+    6. Adds "xlsx" suffix
+
+    Args:
+        language (str, optional): Language selection. Defaults to "ENG".
+
+    Returns:
+        str: Formatted output filaname for material list
+    """
+    
     revit_file_path = revit.doc.PathName
     revit_filename = revit_file_path[:-4].split("\\")[-1]
+    revit_filename = re.sub(r" \((ID [0-9]+)\)$", "", revit_filename)
+
     material_list_text = "MaterialList" if language == "ENG" else TRANSLATIONS["Material list"].get(language, "")
     underscore_count = revit_filename.count("_")
     
-    if re.search(r'[^a-zA-Z0-9_]', revit_filename):
+    if re.search(r"[^a-zA-Z0-9_]", revit_filename):
         print("File naming convention is not followed!")
         print("Filename contains characters other than alphanumerics")
         print("---")
