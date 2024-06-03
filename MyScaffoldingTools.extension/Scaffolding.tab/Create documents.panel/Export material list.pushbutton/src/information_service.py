@@ -46,7 +46,13 @@ def format_output_filename(language="ENG"):
     """
     
     revit_file_path = revit.doc.PathName
-    revit_filename = revit_file_path[:-4].split("\\")[-1]
+    
+    if len(revit_file_path) > 4:
+        revit_filename = revit_file_path[:-4].split("\\")[-1]
+    else:
+        revit_filename = "ProjectUknown"
+        print("Revit file has no name. In order to ensure correct naming convention, save the Revit file before proceeding material list export.")
+
     revit_filename = re.sub(r" \((ID [0-9]+)\)$", "", revit_filename)
 
     material_list_text = "MaterialList" if language == "ENG" else TRANSLATIONS["Material list"].get(language, "")
