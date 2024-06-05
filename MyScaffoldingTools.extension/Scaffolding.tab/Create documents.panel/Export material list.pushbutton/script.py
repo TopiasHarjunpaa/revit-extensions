@@ -19,7 +19,13 @@ def main():
         master_file_path = os.path.join(base_dir, "assets", "master_material_list.csv")
 
         output_file_name = format_output_filename(main_language)
-        output_file_path = os.path.join(base_dir, "assets", output_file_name)
+        output_dir_path = os.path.abspath(os.path.join(base_dir, "..", "..", "..", "..", "..", "outputs"))
+
+        if not os.path.exists(output_dir_path):
+            os.makedirs(output_dir_path)
+            print("Can not find output folder for the material list. Folder has been created and file will be stored into {}".format(output_dir_path))
+
+        output_file_path = os.path.join(output_dir_path, output_file_name)
 
         master_data = get_master_data(master_file_path)
         schedule_data = get_schedule_information("Material list")
