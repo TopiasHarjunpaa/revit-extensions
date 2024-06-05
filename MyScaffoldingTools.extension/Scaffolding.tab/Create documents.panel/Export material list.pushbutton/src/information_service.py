@@ -101,8 +101,8 @@ def get_project_parameters(language="ENG", total_weight="NA", total_price="NA"):
 
     # Add translated totals
     totals = {
-        "Total weight": "{:,.2f} kg".format(total_weight),
-        "Total price": "{:,.2f} €".format(total_price)
+        "Total weight": "{:.2f} kg".format(total_weight).replace(".", ","),
+        "Total price": "{:.2f} €".format(total_price).replace(".", ",")
     }
 
     for key, value in totals.items():

@@ -20,8 +20,8 @@ def write_to_xlsx(project_params, notes, headers, material_list, file_path):
     list_worksheet = workbook.add_worksheet("List")
     row_counter = 1
 
-    column_widths_main = [2, 20, 45, 15, 8.43, 8.43, 8.43, 8.43]
-    column_widths_list = [2, 20, 45, 20, 20, 20, 45, 45]
+    column_widths_main = [2, 20, 55, 15, 8.43, 8.43, 8.43, 8.43]
+    column_widths_list = [2, 20, 55, 15, 15, 15, 55, 55]
     for i in range(8):
         main_worksheet.set_column(i, i, column_widths_main[i])
         list_worksheet.set_column(i, i, column_widths_list[i])
