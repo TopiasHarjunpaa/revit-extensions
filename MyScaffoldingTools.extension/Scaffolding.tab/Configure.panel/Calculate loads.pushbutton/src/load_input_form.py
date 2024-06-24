@@ -4,13 +4,16 @@ import clr
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 
-from System.Windows.Forms import Form, Label, TextBox, Button, DialogResult, MessageBox, RadioButton, GroupBox
+from System.Windows.Forms import Form, Label, TextBox, Button, DialogResult, MessageBox, RadioButton, GroupBox, Screen
 from System.Drawing import Point, Size
 
 class InputForm(Form):
     def __init__(self):
         self.Text = "Calculate Load Information"
-        self.Size = Size(530, 550)
+        
+        form_height = Screen.PrimaryScreen.Bounds.Height * 0.6
+        form_width = form_height * 0.8
+        self.Size = Size(int(form_width), int(form_height))
 
         labels = [
             ["A1", "National Annex", ["FIN", "ENG", "SWE"]],
@@ -30,31 +33,31 @@ class InputForm(Form):
 
         self.text_boxes = {}
         self.radio_buttons = {}
-        y_offset = 40
+        y_offset = form_height / 15
 
         for label_info in labels:
             if len(label_info) == 3:
                 label = Label()
                 label.Text = "{}. {}".format(label_info[0], label_info[1])
                 label.AutoSize = True
-                label.MaximumSize = Size(300, 0)
-                label.Location = Point(30, y_offset)
+                label.MaximumSize = Size(form_width * 0.6, 0)
+                label.Location = Point(form_width / 25, y_offset)
                 self.Controls.Add(label)
 
                 if isinstance(label_info[2], list):
                     group_box = GroupBox()
                     group_box.Text = ""
-                    group_box.Location = Point(300, y_offset - 10)
-                    group_box.Size = Size(180, 30)
+                    group_box.Location = Point(form_width * 0.55, y_offset - form_height / 80)
+                    group_box.Size = Size(form_width * 0.35, form_height / 22)
                     self.Controls.Add(group_box)
-                    x_offset = 10
+                    x_offset = form_width * 0.025
                     self.radio_buttons[label_info[0]] = []
                     
                     for idx, option in enumerate(label_info[2]):
                         radio_button = RadioButton()
                         radio_button.Text = option
                         radio_button.AutoSize = True
-                        radio_button.Location = Point(x_offset, 10)
+                        radio_button.Location = Point(x_offset, form_height / 70)
                         group_box.Controls.Add(radio_button)
                         self.radio_buttons[label_info[0]].append(radio_button)
                         
@@ -62,32 +65,34 @@ class InputForm(Form):
                             radio_button.Checked = True
                         
                         if len(label_info[2]) == 3:
-                            x_offset += 60
+                            x_offset += form_width * 0.11
 
                         else:
-                            x_offset += 33
+                            x_offset += form_width * 0.06
                         
                 else:
                     textbox = TextBox()
-                    textbox.Location = Point(300, y_offset)
-                    textbox.Size = Size(180, 30)
+                    textbox.Location = Point(form_width * 0.55, y_offset)
+                    textbox.Size = Size(form_width * 0.35, form_height / 22)
                     textbox.Text = label_info[2]
                     self.Controls.Add(textbox)
                     self.text_boxes[label_info[0]] = textbox
 
-                y_offset += 30
+                y_offset += form_height / 20
 
-        y_offset += 20
+        y_offset += form_height / 20
 
         self.ok_button = Button()
         self.ok_button.Text = "Calculate"
-        self.ok_button.Location = Point(175, y_offset)
+        self.ok_button.Location = Point(form_width * 0.25, y_offset)
+        self.ok_button.Size = Size(form_width * 0.2, form_height / 20)
         self.ok_button.Click += self.ok_button_click
         self.Controls.Add(self.ok_button)
 
         self.cancel_button = Button()
         self.cancel_button.Text = "Cancel"
-        self.cancel_button.Location = Point(260, y_offset)
+        self.cancel_button.Location = Point(form_width * 0.55, y_offset)
+        self.cancel_button.Size = Size(form_width * 0.2, form_height / 20)
         self.cancel_button.Click += self.cancel_button_click
         self.Controls.Add(self.cancel_button)
 
