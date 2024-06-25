@@ -4,14 +4,17 @@ import clr
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("System.Drawing")
 
-from System.Windows.Forms import Form, Label, TextBox, Button, DialogResult, CheckBox, MessageBox
+from System.Windows.Forms import Form, Label, TextBox, Button, DialogResult, CheckBox, MessageBox, Screen
 from System.Drawing import Point, Size
 
 
 class BayForm(Form):
     def __init__(self):
         self.Text = "Find bays"
-        self.Size = Size(300, 500)
+
+        form_height = Screen.PrimaryScreen.Bounds.Height * 0.5
+        form_width = form_height * 0.6
+        self.Size = Size(int(form_width), int(form_height))
 
         labels = [
             ("Bay: 0,154 m", True),
@@ -27,60 +30,62 @@ class BayForm(Form):
         ]
 
         self.check_boxes = []
-        y_offset = 20
+        y_offset = form_height / 25
 
         for label_text, default_value in labels:
             label = Label()
             label.Text = label_text
             label.AutoSize = True
-            label.Location = Point(30, y_offset)
+            label.Location = Point(form_width / 25, y_offset)
             self.Controls.Add(label)
 
             checkbox = CheckBox()
-            checkbox.Location = Point(210, y_offset)
+            checkbox.Location = Point(form_width / 2, y_offset)
             checkbox.Checked = default_value
             self.Controls.Add(checkbox)
             self.check_boxes.append(checkbox)
             
-            y_offset += 30
+            y_offset += form_height / 15
 
         targeted_distance_label = Label()
         targeted_distance_label.Text = "Targeted distance"
         targeted_distance_label.AutoSize = True
-        targeted_distance_label.Location = Point(30, y_offset)
+        targeted_distance_label.Location = Point(form_width / 25, y_offset)
         self.Controls.Add(targeted_distance_label)
 
         self.targeted_distance_textbox = TextBox()
-        self.targeted_distance_textbox.Location = Point(180, y_offset)
-        self.targeted_distance_textbox.Size = Size(70, 30)
+        self.targeted_distance_textbox.Location = Point(form_width / 2, y_offset)
+        self.targeted_distance_textbox.Size = Size(form_width / 4, y_offset)
         self.targeted_distance_textbox.Text = "30000"
         self.Controls.Add(self.targeted_distance_textbox)
         
-        y_offset += 30
+        y_offset += form_height / 15
 
         tolerance_label = Label()
         tolerance_label.Text = "Tolerance"
         tolerance_label.AutoSize = True
-        tolerance_label.Location = Point(30, y_offset)
+        tolerance_label.Location = Point(form_width / 25, y_offset)
         self.Controls.Add(tolerance_label)
 
         self.tolerance_textbox = TextBox()
-        self.tolerance_textbox.Location = Point(180, y_offset)
-        self.tolerance_textbox.Size = Size(70,30)
+        self.tolerance_textbox.Location = Point(form_width / 2, y_offset)
+        self.tolerance_textbox.Size = Size(form_width / 4, y_offset)
         self.tolerance_textbox.Text = "100"
         self.Controls.Add(self.tolerance_textbox)
         
-        y_offset += 50
+        y_offset += form_height / 12
 
         self.ok_button = Button()
         self.ok_button.Text = "OK"
-        self.ok_button.Location = Point(60, y_offset)
+        self.ok_button.Location = Point(form_width * 0.25, y_offset)
+        self.ok_button.Size = Size(form_width * 0.2, form_height / 20)
         self.ok_button.Click += self.ok_button_click
         self.Controls.Add(self.ok_button)
 
         self.cancel_button = Button()
         self.cancel_button.Text = "Cancel"
-        self.cancel_button.Location = Point(150, y_offset)
+        self.cancel_button.Location = Point(form_width * 0.55, y_offset)
+        self.cancel_button.Size = Size(form_width * 0.2, form_height / 20)
         self.cancel_button.Click += self.cancel_button_click
         self.Controls.Add(self.cancel_button)
 
