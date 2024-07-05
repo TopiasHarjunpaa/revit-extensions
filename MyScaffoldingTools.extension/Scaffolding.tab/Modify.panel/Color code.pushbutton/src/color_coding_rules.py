@@ -13,7 +13,7 @@ ROOF_SYSTEM = "ROOF"
 
 color_rules = [
     (MAGENTA, [DOUBLE_BRACING]),
-    (LIGHT_GREEN, ["3801", "3812", "2675"]),
+    (LIGHT_GREEN, ["3801", "3862", "3863", "3812", "3802", "2675"]),
     (GREEN, ["3878", "3880"]),
     (ORANGE, ["2640", ROOF_SYSTEM]),
     (RED, ["AL"]),

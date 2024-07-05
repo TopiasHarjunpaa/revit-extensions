@@ -198,10 +198,10 @@ def calculate_pressure_coefficents(angle, width):
     coefficients["Mono-pitch roof suction to up slope"] = MONOPITCH_SUCTION_US
     coefficients["Mono-pitch roof suction to down slope"] = MONOPITCH_SUCTION_DS
     if width == 0:
-        coefficients["Roof pressure"] = 0
-        coefficients["Double-pitch roof suction"] = 0
-        coefficients["Mono-pitch roof suction to up slope"] = 0
-        coefficients["Mono-pitch roof suction to down slope"] = 0      
+        coefficients["Roof pressure"] = 0.0
+        coefficients["Double-pitch roof suction"] = 0.0
+        coefficients["Mono-pitch roof suction to up slope"] = 0.0
+        coefficients["Mono-pitch roof suction to down slope"] = 0.0   
     return coefficients
 
 def format_imposed_loads(imposed_load):
@@ -269,11 +269,16 @@ def format_load_parameters(
     line_load = wind_calculation_params["Peak velocity pressure"] * bay_length / 1000
 
     for key, value in pressure_coefficients.items():
+        print(key)
+        print(value)
         formatted_load_params[key] = "{:.2f}".format(value).replace(".", ",")
+        print(formatted_load_params[key])
+        print(key)
+        print("")
         formatted_load_params["{} load".format(key)] = "{:.2f}".format(value * line_load).replace(".", ",")
 
     formatted_load_params["Terrain category"] = ["0", "I", "II", "III", "IV"][terrain_category]
-    formatted_load_params["Roof angle"] = "{:.2f}".format(angle).replace(".", ",")
+    formatted_load_params["Roof angle"] = "{:.2f}".format(float(angle)).replace(".", ",")
     formatted_load_params["Bay length"] = "{:.2f}".format(bay_length / 1000).replace(".", ",")
     formatted_load_params["Roof width"] = "{:.2f}".format(roof_width / 1000).replace(".", ",")
     formatted_load_params["Snow load"] = "{:.2f}".format(snow_load / 100).replace(".", ",")
