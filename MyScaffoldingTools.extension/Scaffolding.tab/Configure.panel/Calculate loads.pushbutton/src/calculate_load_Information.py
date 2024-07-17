@@ -269,12 +269,7 @@ def format_load_parameters(
     line_load = wind_calculation_params["Peak velocity pressure"] * bay_length / 1000
 
     for key, value in pressure_coefficients.items():
-        print(key)
-        print(value)
         formatted_load_params[key] = "{:.2f}".format(value).replace(".", ",")
-        print(formatted_load_params[key])
-        print(key)
-        print("")
         formatted_load_params["{} load".format(key)] = "{:.2f}".format(value * line_load).replace(".", ",")
 
     formatted_load_params["Terrain category"] = ["0", "I", "II", "III", "IV"][terrain_category]
