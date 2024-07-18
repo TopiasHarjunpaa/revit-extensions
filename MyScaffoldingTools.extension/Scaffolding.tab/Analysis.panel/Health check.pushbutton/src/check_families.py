@@ -93,6 +93,6 @@ def find_scaffolding_components():
 def check_families():
     print("Checking families...")
     score = find_scaffolding_components()
-    print("...Family checking ended")
+    print("...Family checking completed")
 
     return score
