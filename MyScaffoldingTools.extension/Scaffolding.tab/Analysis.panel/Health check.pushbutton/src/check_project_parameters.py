@@ -45,11 +45,14 @@ def get_global_parameters():
     checks += 1
 
     if "Show inspector name" in global_params_dict:
+        # This check should not be needed, since Revit UI has tickbox selection here.
         if global_params_dict["Show inspector name"] == 0 or global_params_dict["Show inspector name"] == 1:
             print("Show inspector name: OK")
             points += 1
         else:
-            print("Show inspector name: Not found!")
+            print("Show inspector name: Invalid value! Must be Yes or No.")
+    else:
+        print("Show inspector name: Not found!")
     checks += 1
     
     return global_params_dict, points, checks
@@ -78,7 +81,7 @@ def get_project_information_params():
     
     for name in param_names:
         if name not in information_params_dict:
-            print("{} parameter is missing from the project".format(name))
+            print("{}: Not found!".format(name))
         else:
             information_points += 1
         information_checks += 1

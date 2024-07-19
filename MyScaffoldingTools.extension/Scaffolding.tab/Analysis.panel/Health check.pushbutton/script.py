@@ -4,7 +4,12 @@ from src.check_file_properties import check_file_properties
 
 
 def main():
-    family_score = check_families()
+    print("Checking families...")
+    family_points, family_checks = check_families()
+    family_score = family_points * 100 / family_checks
+    print("Family checking completed")
+    print("Points gained {0} out of {1}. Family score: {2} %".format(family_points, family_checks, family_score))
+    print("---")
 
     print("Checking project parameters...")
     project_param_points, project_param_checks = check_project_params()
