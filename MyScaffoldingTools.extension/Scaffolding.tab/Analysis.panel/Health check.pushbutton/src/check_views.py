@@ -42,10 +42,6 @@ def check_section_names_and_get_sections_in_viewports(views):
         points += 1
         for section in views["Section"]:
             section_name = section[0].Name
-            print("---")
-            print(section_name)
-            print(section[0].IsCallout)
-            print("---")
 
             if section[0].IsCallout:
                 if re.match(r"^DET([1-9]|[1-9][0-9])$", section_name):
