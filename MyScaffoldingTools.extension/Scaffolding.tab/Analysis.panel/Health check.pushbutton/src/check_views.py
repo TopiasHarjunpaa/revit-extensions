@@ -90,14 +90,16 @@ def contains_family_with_parameter_name(view, parameter_name):
 
 
 def check_annotations_used_in_sections(sections_in_viewports):
-    points = len(sections_in_viewports) * 2
-    checks = len(sections_in_viewports) * 2
+    points = len(sections_in_viewports) * 3
+    checks = len(sections_in_viewports) * 3
 
     for section in sections_in_viewports:
         contains_anchor_families = contains_family_with_parameter_name(section, "Max X+")
         contains_base_plate_families = contains_family_with_parameter_name(section, "Max Z+")
+        contains_roof_system = contains_family_with_parameter_name(section, "Fill type")
         contains_anchor_tags = contains_annotation(section, "Anchor")
         contains_leg_tags = contains_annotation(section, "Leg")
+        contains_lifting_points_tags = contains_annotation(section, "Lifting points")
         
         if contains_anchor_families and not contains_anchor_tags:
             print("Anchor tags in section [{}]: Incorrect. Section has anchoring components, but no anchor tags.".format(section.Name))
@@ -114,6 +116,14 @@ def check_annotations_used_in_sections(sections_in_viewports):
             print("Leg tags in section [{}]: OK. Section does not have any base plates.".format(section.Name))
         else:
             print("Leg tags in section [{}]: OK".format(section.Name))
+
+        if contains_roof_system and not contains_lifting_points_tags:
+            print("Lifting point tags in section [{}]: Incorrect. Section has roof system, but no lifting point tags.".format(section.Name))
+            points -= 1
+        elif not contains_roof_system:
+            print("Lifting point in section [{}]: OK. Section does not have roof system.".format(section.Name))
+        else:
+            print("Lifting point in section [{}]: OK".format(section.Name))
 
     return points, checks
 
