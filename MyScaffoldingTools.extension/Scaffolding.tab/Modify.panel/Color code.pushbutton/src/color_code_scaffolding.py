@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from color_coding_rules import DOUBLE_BRACING, ROOF_SYSTEM, get_color_for_product_number
+from color_coding_rules import DOUBLE_BRACING, ROOF_SYSTEM, ANCHOR, get_color_for_product_number
 from pyrevit import revit, DB
 
 def get_product_number(element):
@@ -46,20 +46,18 @@ def has_both_diagonal_params(element):
             return True
     return False
 
-def is_roof_system(element):
-    """Checks if scaffolding family is roof system or not. Roof systems contains fill type
-    parameter which is used to identify roof system.
+def contains_family_with_parameter_name(element, parameter_name):
+    """Identifies scaffolding family based on certain parameter.
 
     Args:
         element: Autodesk.Revit.DB Element class.
+        parameter_name (str): Parameter name to be looked from the family. 
 
     Returns:
-        bool: Returns true if roof system else false.
+        bool: Returns true if parameter is in family else false.
     """
 
-    fill_type = element.LookupParameter("Fill type")
-    
-    return True if fill_type else False
+    return True if element.LookupParameter(parameter_name) else False
 
 def sort_elements(elements):
     """Sorts list of elements in predefined order to ensure proper coloring overrides.
@@ -84,7 +82,7 @@ def sort_elements(elements):
             return 3
         if product_number == DOUBLE_BRACING:
             return 2
-        if product_number and product_number.startswith("AL"):
+        if product_number == ANCHOR:
             return 1
         return 0
 
@@ -107,16 +105,20 @@ def find_scaffolding_components():
 
     for element in collector:
         product_number = get_product_number(element)
+        is_roof_system = contains_family_with_parameter_name(element, "Fill type")
+        is__anchor = contains_family_with_parameter_name(element, "Max X+")
         
         if product_number:
             scaffolding_families.append((element, product_number))
-            continue
 
         if has_both_diagonal_params(element):
             scaffolding_families.append((element, DOUBLE_BRACING))
         
-        if is_roof_system(element):
+        if is_roof_system:
             scaffolding_families.append((element, ROOF_SYSTEM))
+        
+        if is__anchor:
+            scaffolding_families.append((element, ANCHOR))
     
     return sort_elements(scaffolding_families)
 

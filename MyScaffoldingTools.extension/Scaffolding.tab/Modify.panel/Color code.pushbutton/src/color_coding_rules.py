@@ -10,13 +10,14 @@ LIGHT_GREEN = DB.Color(160, 255, 160)
 GREEN = DB.Color(120, 255, 120)
 DOUBLE_BRACING = "DOUBLE"
 ROOF_SYSTEM = "ROOF"
+ANCHOR = "ANCHOR"
 
 color_rules = [
     (MAGENTA, [DOUBLE_BRACING]),
     (LIGHT_GREEN, ["3801", "3862", "3863", "3812", "3802", "2675"]),
     (GREEN, ["3878", "3880"]),
     (ORANGE, ["2640", ROOF_SYSTEM]),
-    (RED, ["AL"]),
+    (RED, [ANCHOR]),
 ]
 
 def get_color_for_product_number(product_number):
