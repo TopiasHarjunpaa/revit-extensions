@@ -228,8 +228,11 @@ def check_viewports_have_correct_types(views, viewport_types):
     points += check_correct_types(section_types, "Title section", "Section")
     checks += 1
 
-    points += check_correct_types(section_callout_types, "Title basic", "Section callout")
-    checks += 1
+    if len(section_callout_types) > 0:
+        points += check_correct_types(section_callout_types, "Title basic", "Section callout")
+        checks += 1
+    else:
+        print("Section callout viewport types: OK. No viewports are found on the project.")
 
     return points, checks
 
