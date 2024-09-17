@@ -201,7 +201,8 @@ def calculate_pressure_coefficents(angle, width):
         coefficients["Roof pressure"] = 0.0
         coefficients["Double-pitch roof suction"] = 0.0
         coefficients["Mono-pitch roof suction to up slope"] = 0.0
-        coefficients["Mono-pitch roof suction to down slope"] = 0.0   
+        coefficients["Mono-pitch roof suction to down slope"] = 0.0
+
     return coefficients
 
 def format_imposed_loads(imposed_load):
@@ -269,7 +270,7 @@ def format_load_parameters(
     line_load = wind_calculation_params["Peak velocity pressure"] * bay_length / 1000
 
     for key, value in pressure_coefficients.items():
-        formatted_load_params[key] = "{:.2f}".format(value).replace(".", ",")
+        formatted_load_params[key] = "{:.2f}".format(float(value)).replace(".", ",")
         formatted_load_params["{} load".format(key)] = "{:.2f}".format(value * line_load).replace(".", ",")
 
     formatted_load_params["Terrain category"] = ["0", "I", "II", "III", "IV"][terrain_category]
