@@ -4,25 +4,18 @@ from datetime import date
 import re
 from translations import REVIT_PARAMS, HEADER_PARAMS, TRANSLATIONS
 from pyrevit import revit, DB
+from get_parameters import get_language
 
 def get_project_language():
-    global_params = DB.FilteredElementCollector(revit.doc).OfClass(DB.GlobalParameter)
+    """Retrieves only language name from the project. Ignores language index
+    which is second item of the tuple recieved from get_language -method.
 
-    for param in global_params:
-        if param.Name == "Project language":
-            param_value = param.GetValue().Value
-            if param_value == 1:
-                return "FIN"
-            if param_value == 2:
-                return "ENG"
-            if param_value == 3:
-                return "SWE"
+    Returns:
+        str: Language name as string (FIN, ENG or SWE)
+    """
+    language_name = get_language()[0]
 
-    print("Project language parameter is not found. English language as a default will be used.")
-    print("In order to define project language. Make sure your global language parameter is set to integer between 1 to 3")
-    print("---")
-
-    return "ENG"
+    return language_name
 
 def format_output_filename(language="ENG"):
     """Formats material list filename based on Revit model file name. Additionally, makes few simple checks if the

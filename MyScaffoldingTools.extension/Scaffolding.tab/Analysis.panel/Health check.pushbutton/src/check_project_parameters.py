@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from pyrevit import revit, DB
+from get_parameters import get_global_params, get_project_information_params, get_project_load_params
 
-def get_global_parameters():
+def check_global_parameters():
     """Finds all global parameters from the Revit project and stores them into dictionary.
         Checks whether all the necessary parameters exists and they are in correct range.
 
@@ -14,15 +14,9 @@ def get_global_parameters():
         Tuple(Dict, Int): Dictionary with global parameters and points from the parameter check.
     """
 
-    global_params_dict = {}
+    global_params_dict = get_global_params()
     points = 0
     checks = 0
-    global_params = DB.FilteredElementCollector(revit.doc).OfClass(DB.GlobalParameter)
-
-    for global_param in global_params:
-        global_param_name = global_param.Name
-        global_param_value = global_param.GetValue().Value
-        global_params_dict[global_param_name] = global_param_value
     
     if "Project language" in global_params_dict:
         if global_params_dict["Project language"] >= 1 and global_params_dict["Project language"] <= 3:
@@ -57,27 +51,14 @@ def get_global_parameters():
     
     return global_params_dict, points, checks
 
-def get_project_information_params():
-    information_params_dict = {}
-    load_params_dict = {}
+def check_project_params():
+    information_params_dict = get_project_information_params()
+    load_params_dict = get_project_load_params()
     param_names = ["Author", "Client Name", "Project Address", "Project Name", "Supervisor name", "Inspector name", "Drawing type"]
     information_points = 0
     information_checks = 0
     load_points = 0
     load_checks = 0
-
-    project_params = revit.doc.ProjectInformation.Parameters
-
-    for project_param in project_params:
-        project_param_name = project_param.Definition.Name
-        if project_param_name in param_names and project_param.StorageType == DB.StorageType.String:
-            project_param_value = project_param.AsString()
-            information_params_dict[project_param_name] = project_param_value
-        else:
-            if project_param.IsShared and project_param.StorageType == DB.StorageType.String:
-                load_param_name = project_param.Definition.Name
-                load_param_value = project_param.AsString()
-                load_params_dict[load_param_name] = load_param_value
     
     for name in param_names:
         if name not in information_params_dict:
@@ -120,9 +101,9 @@ def get_project_information_params():
 
     return information_params_dict, load_params_dict, information_points, information_checks, load_points, load_checks
 
-def check_project_params():
-    global_params, global_points, global_checks = get_global_parameters()
-    info_params, load_params, info_points, info_checks, load_points, load_checks = get_project_information_params()
+def check_params():
+    global_params, global_points, global_checks = check_global_parameters()
+    info_params, load_params, info_points, info_checks, load_points, load_checks = check_project_params()
     project_param_points = global_points + info_points + load_points
     project_param_checks = global_checks + info_checks + load_checks
 

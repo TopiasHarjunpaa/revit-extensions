@@ -1,5 +1,5 @@
 from src.check_families import check_families
-from src.check_project_parameters import check_project_params
+from src.check_project_parameters import check_params
 from src.check_file_properties import check_file_properties
 from src.check_views import check_views
 
@@ -13,7 +13,7 @@ def main():
     print("---")
 
     print("Checking project parameters...")
-    project_param_points, project_param_checks = check_project_params()
+    project_param_points, project_param_checks = check_params()
     project_param_score = project_param_points * 100 / project_param_checks
     print("Project parameter checking completed")
     print("Points gained {0} out of {1}. Project parameter score: {2} %".format(project_param_points, project_param_checks, project_param_score))
