@@ -171,10 +171,10 @@ def calculate_roof_suction(angle, width):
     """
 
     angle_factor = min(max((angle - 10) / 100, 0), 0.1)
-    if width <= 10000:
+    if width <= 10:
         return -0.7 + angle_factor
-    elif width < 25000:
-        return 0.01 * width / 1000 - 0.8 + angle_factor
+    elif width < 25:
+        return 0.01 * width - 0.8 + angle_factor
     return -0.55 + angle_factor
 
 def calculate_pressure_coefficents(angle, width):
@@ -217,14 +217,14 @@ def format_imposed_loads(imposed_load):
     """
 
     combination_factor = "1,00"
-    if imposed_load <= 75:
+    if imposed_load <= 0.75:
         combination_factor = "0,00"
-    if 75 < imposed_load <= 200:
+    if 0.75 < imposed_load <= 2.00:
         combination_factor = "0,25"
-    if 200 < imposed_load <= 600:
+    if 2.00 < imposed_load <= 6.00:
         combination_factor = "0,50"
 
-    return {"Imposed loads": "{:.2f}".format(imposed_load / 100).replace(".", ","), "Imposed load combination factor": combination_factor}
+    return {"Imposed loads": "{:.2f}".format(imposed_load).replace(".", ","), "Imposed load combination factor": combination_factor}
 
 def format_consequence_class(consequence_class):
     """Calculates K factor according to consequence class based on EN 1990 and creates response
@@ -267,7 +267,7 @@ def format_load_parameters(
     formatted_load_params = {key: "{:.2f}".format(float(value)).replace(".", ",") for key, value in wind_calculation_params.items()}
     formatted_load_params.update(format_imposed_loads(imposed_load))
     formatted_load_params.update(format_consequence_class(consequence_class))
-    line_load = wind_calculation_params["Peak velocity pressure"] * bay_length / 1000
+    line_load = wind_calculation_params["Peak velocity pressure"] * bay_length
 
     for key, value in pressure_coefficients.items():
         formatted_load_params[key] = "{:.2f}".format(float(value)).replace(".", ",")
@@ -275,11 +275,11 @@ def format_load_parameters(
 
     formatted_load_params["Terrain category"] = ["0", "I", "II", "III", "IV"][terrain_category]
     formatted_load_params["Roof angle"] = "{:.2f}".format(float(angle)).replace(".", ",")
-    formatted_load_params["Bay length"] = "{:.2f}".format(bay_length / 1000).replace(".", ",")
-    formatted_load_params["Roof width"] = "{:.2f}".format(roof_width / 1000).replace(".", ",")
-    formatted_load_params["Snow load"] = "{:.2f}".format(snow_load / 100).replace(".", ",")
+    formatted_load_params["Bay length"] = "{:.2f}".format(bay_length).replace(".", ",")
+    formatted_load_params["Roof width"] = "{:.2f}".format(roof_width).replace(".", ",")
+    formatted_load_params["Snow load"] = "{:.2f}".format(snow_load).replace(".", ",")
     formatted_load_params["Return period"] = "{:.0f}".format(return_period).replace(".", ",")
-    formatted_load_params["Height above ground"] = "{:.0f}".format(height).replace(".", ",")
+    formatted_load_params["Height above ground"] = "{:.1f}".format(height).replace(".", ",")
 
     return formatted_load_params
 
