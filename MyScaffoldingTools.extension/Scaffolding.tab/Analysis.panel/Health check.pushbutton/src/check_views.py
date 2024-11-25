@@ -38,7 +38,7 @@ def check_section_names_and_get_sections_in_viewports(views):
     points = 0
     checks = 0
 
-    if len(views["Section"]) > 0:
+    if "Section" in views and len(views["Section"]) > 0:
         points += 1
         for section in views["Section"]:
             section_name = section[0].Name
