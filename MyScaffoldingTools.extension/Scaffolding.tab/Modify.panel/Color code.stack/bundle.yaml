@@ -1,0 +1,5 @@
+type: stack
+layout:
+  - Color code all
+  - Color code highlight
+  - Reset colors

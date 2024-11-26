@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from color_coding_rules import DOUBLE_BRACING, ROOF_SYSTEM, ANCHOR, get_color_for_product_number
 from pyrevit import revit, DB
+
 
 def get_product_number(element):
     """Finds family parameter named as Product number and returns it as a string.
@@ -59,7 +59,7 @@ def contains_family_with_parameter_name(element, parameter_name):
 
     return True if element.LookupParameter(parameter_name) else False
 
-def sort_elements(elements):
+def sort_elements(elements, double_bracing = None, roof_system = None, anchor = None):
     """Sorts list of elements in predefined order to ensure proper coloring overrides.
     Items which are placed at the end of the list are main families which contains sub families and
     are wanted to be colored in same color than the main family.
@@ -70,6 +70,9 @@ def sort_elements(elements):
 
     Args:
         list(Autodesk.Revit.DB, str): List of tuples where 1st item is Element class and 2nd item is product number.
+        double_bracing (str, optional): Product number for double braced families. Defaults to None.
+        roof_system (bool, optional): Product number for roof system families. Defaults to None.
+        anchor (bool, optional): Product number for anchoring families. Defaults to None.
 
     Returns:
         list: Sorted list of tuples.
@@ -78,20 +81,26 @@ def sort_elements(elements):
     def get_sort_key(element):
         product_number = element[1]
 
-        if product_number == ROOF_SYSTEM:
+        if product_number == roof_system:
             return 3
-        if product_number == DOUBLE_BRACING:
+        if product_number == double_bracing:
             return 2
-        if product_number == ANCHOR:
+        if product_number == anchor:
             return 1
         return 0
 
     return sorted(elements, key=get_sort_key)
 
-def find_scaffolding_components():
+def find_scaffolding_components(double_bracing = None, roof_system = None, anchor = None):
     """Finds all scaffolding families in a Revit project which contains Product number (which are typically sub families).
     In addition to these, finds a main families (ie. functional families which controls the sub families) which may not
-    have product number parameter, but are wanted to be identified for color coding purposes.
+    have product number parameter, but are wanted to be identified for color coding purposes. 
+    Such main families can be included into search by defining "mock" product number for such types as argument.
+
+    Args:
+        double_bracing (str, optional): Product number for double braced families. Defaults to None.
+        roof_system (bool, optional): Product number for roof system families. Defaults to None.
+        anchor (bool, optional): Product number for anchoring families. Defaults to None.
 
     Returns:
         list(Autodesk.Revit.DB, str): Sorted list of tuples where 1st item is Element class and 2nd item is product number.
@@ -105,89 +114,20 @@ def find_scaffolding_components():
 
     for element in collector:
         product_number = get_product_number(element)
-        is_roof_system = contains_family_with_parameter_name(element, "Fill type")
-        is__anchor = contains_family_with_parameter_name(element, "Max X+")
+        is_double_bracing = False if double_bracing is None else has_both_diagonal_params(element)
+        is_roof_system = False if roof_system is None else contains_family_with_parameter_name(element, "Fill type")
+        is_anchor = False if anchor is None else contains_family_with_parameter_name(element, "Max X+")
         
         if product_number:
             scaffolding_families.append((element, product_number))
 
-        if has_both_diagonal_params(element):
-            scaffolding_families.append((element, DOUBLE_BRACING))
+        if is_double_bracing:
+            scaffolding_families.append((element, double_bracing))
         
         if is_roof_system:
-            scaffolding_families.append((element, ROOF_SYSTEM))
+            scaffolding_families.append((element, roof_system))
         
-        if is__anchor:
-            scaffolding_families.append((element, ANCHOR))
+        if is_anchor:
+            scaffolding_families.append((element, anchor))
     
-    return sort_elements(scaffolding_families)
-
-def apply_color_overrides(element, product_number, ogs, solid_fill_pattern):
-    """Applies graphical overrides to the scaffolding families. Product number
-    is used to determine the color coding rules.
-
-    Args:
-        element: Autodesk.Revit.DB Element class.
-        product_number (str): Product number as string.
-        ogs: Autodesk.Revit.DB OverrideGraphicSettings class.
-        solid_fill_pattern: Autodesk.Revit.DB FillPatternElement class.
-    """
-
-    color = get_color_for_product_number(product_number)
-    ogs.SetSurfaceForegroundPatternId(solid_fill_pattern.Id)
-    ogs.SetSurfaceForegroundPatternColor(color)
-    
-    apply_color_overrides_recursive(element, ogs)
-
-def apply_color_overrides_recursive(element, ogs): 
-    """Applies graphical overrides recursive to the scaffolding sub families.
-    Makes sure that all sub families and their sub families are colored using
-    the same rule than the main family.
-
-    Args:
-        element: Autodesk.Revit.DB Element class.
-        ogs: Autodesk.Revit.DB OverrideGraphicSettings class.
-    """
-
-    revit.active_view.SetElementOverrides(element.Id, ogs)
-
-    if hasattr(element, "GetSubComponentIds"):
-        sub_components = element.GetSubComponentIds()
-        for sub_element_id in sub_components:
-            sub_element = revit.doc.GetElement(sub_element_id)
-            apply_color_overrides_recursive(sub_element, ogs)
-
-def color_code_components():
-    """Finds scaffolding components, initializes the OverrideGraphicSettings class, selects solid fill pattern
-    and overrides current graphical settings of the scaffolding components using predefined set of coloring rules.
-    """
-    
-    elements_with_product_number = find_scaffolding_components()
-    
-    ogs = DB.OverrideGraphicSettings()
-    solid_fill_pattern = DB.FillPatternElement.GetFillPatternElementByName(revit.doc, DB.FillPatternTarget.Drafting, "<Solid fill>")
-
-    if solid_fill_pattern is None:
-        print("Solid fill pattern not found. Please ensure it is available in the project.")
-        return
-
-    with DB.Transaction(revit.doc, "Override Graphics") as t:
-        t.Start()
-        for element, product_number in elements_with_product_number:
-            apply_color_overrides(element, product_number, ogs, solid_fill_pattern)
-        t.Commit()
-
-def reset_graphic_overrides():
-    """Resets graphical overrides to the Revit default settings. This is called from another extension module
-    through distinct push button.
-    """
-
-    elements_with_product_number = find_scaffolding_components()
-    
-    ogs = DB.OverrideGraphicSettings()
-
-    with DB.Transaction(revit.doc, "Reset Graphics") as t:
-        t.Start()
-        for element, _ in elements_with_product_number:
-            revit.active_view.SetElementOverrides(element.Id, ogs)
-        t.Commit()
+    return sort_elements(scaffolding_families, double_bracing, roof_system, anchor)
