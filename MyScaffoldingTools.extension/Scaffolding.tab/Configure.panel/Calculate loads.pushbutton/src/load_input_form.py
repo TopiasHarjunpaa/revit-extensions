@@ -6,7 +6,7 @@ clr.AddReference("System.Drawing")
 
 from System.Windows.Forms import Form, Label, TextBox, Button, DialogResult, MessageBox, RadioButton, GroupBox, Screen
 from System.Drawing import Point, Size
-from get_parameters import get_language, get_project_load_params
+from parameters import get_language, get_project_load_params
 
 def set_default_value(load_params, param_name, default_value):
     value = load_params.get(param_name, default_value)

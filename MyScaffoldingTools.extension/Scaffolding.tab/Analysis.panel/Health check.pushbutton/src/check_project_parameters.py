@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from get_parameters import get_global_params, get_project_information_params, get_project_load_params
+from parameters import get_global_params, get_project_information_params, get_project_load_params
 
 def check_global_parameters():
     """Finds all global parameters from the Revit project and stores them into dictionary.

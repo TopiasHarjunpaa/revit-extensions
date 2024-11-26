@@ -4,7 +4,7 @@ from datetime import date
 import re
 from translations import REVIT_PARAMS, HEADER_PARAMS, TRANSLATIONS
 from pyrevit import revit, DB
-from get_parameters import get_language
+from parameters import get_language
 
 def get_project_language():
     """Retrieves only language name from the project. Ignores language index
