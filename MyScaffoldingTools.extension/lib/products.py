@@ -131,3 +131,23 @@ def find_scaffolding_components(double_bracing = None, roof_system = None, ancho
             scaffolding_families.append((element, anchor))
     
     return sort_elements(scaffolding_families, double_bracing, roof_system, anchor)
+
+def find_families_with_unique_product_numbers():
+    """Finds all unique elements in a Revit project based on distinct product numbers.
+
+    Returns:
+        list: List of Autodesk.Revit.DB.Element objects with unique product numbers.
+    """
+
+    collector = DB.FilteredElementCollector(revit.doc)\
+                .OfCategory(DB.BuiltInCategory.OST_GenericModel)\
+                .WhereElementIsNotElementType()
+
+    unique_elements = {}
+
+    for element in collector:
+        product_number = get_product_number(element)
+        if product_number and product_number not in unique_elements:
+            unique_elements[product_number] = element
+
+    return list(unique_elements.values())
