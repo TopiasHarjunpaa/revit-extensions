@@ -2,6 +2,8 @@
 
 from pyrevit import revit, DB
 
+INFO_PARAMS = ["Author", "Client Name", "Project Address", "Project Name", "Supervisor name"]
+HEADER_PARAMS = ["Product number", "Count", "Weight", "List price", "Product name FIN", "Product name ENG", "Product name SWE"]
 
 def get_global_params():
     """Finds all global parameters from the Revit project and stores them into dictionary.
@@ -36,9 +38,8 @@ def get_language():
 
     return "ENG", 1
 
-def get_project_information_params():
+def get_project_information_params(param_names=INFO_PARAMS):
     information_params_dict = {}
-    param_names = ["Author", "Client Name", "Project Address", "Project Name", "Supervisor name", "Inspector name", "Drawing type"]
 
     project_params = revit.doc.ProjectInformation.Parameters
 

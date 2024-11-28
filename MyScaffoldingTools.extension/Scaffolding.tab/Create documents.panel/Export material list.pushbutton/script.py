@@ -34,7 +34,7 @@ def main():
         project_params = get_project_parameters(main_language, total_weight=totals[0], total_price=totals[1])
         project_notes = get_additional_notes(main_language, notes)
         headers = get_headers(main_language)
-        
+
         if len(material_list) > 0:
             write_to_xlsx(project_params, project_notes, headers, material_list, output_file_path)
         else:

@@ -2,9 +2,9 @@
 
 from datetime import date
 import re
-from translations import REVIT_PARAMS, HEADER_PARAMS, TRANSLATIONS
 from pyrevit import revit, DB
-from parameters import get_language
+from translations import TRANSLATIONS
+from parameters import get_language, get_project_information_params, HEADER_PARAMS
 
 def get_project_language():
     """Retrieves only language name from the project. Ignores language index
@@ -76,17 +76,12 @@ def format_output_filename(language="ENG"):
 
 def get_project_parameters(language="ENG", total_weight="NA", total_price="NA"):
     translated_project_parameters = {}
-
-    project_parameters = DB.FilteredElementCollector(revit.doc)\
-                        .OfCategory(DB.BuiltInCategory.OST_ProjectInformation)\
-                        .ToElements()[0].Parameters
-
-    params_dict = {param.Definition.Name: param.AsString() for param in project_parameters}
+    project_params = get_project_information_params()
 
     # Add translated parameters from Revit
-    for key in REVIT_PARAMS:
+    for key in project_params.keys():
         translated_key = TRANSLATIONS[key].get(language, key)
-        translated_project_parameters[key] = (translated_key, params_dict.get(key, "NA"))
+        translated_project_parameters[key] = (translated_key, project_params.get(key, "NA"))
 
     # Add date
     date_key = TRANSLATIONS["Date"].get(language, "Date")

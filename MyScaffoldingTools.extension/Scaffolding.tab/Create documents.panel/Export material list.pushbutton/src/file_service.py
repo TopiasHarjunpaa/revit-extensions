@@ -1,7 +1,7 @@
 import xlsxwriter
 import csv
 import os
-from translations import REVIT_PARAMS
+from parameters import INFO_PARAMS
 
 def get_master_data(file_path):
     with open(file_path, "rb") as f:
@@ -14,7 +14,29 @@ def get_master_data(file_path):
             data.append([product_number, price])
     return data
 
+def is_file_open(file_path):
+    """Checks if the file is currently open by attempting to open it in append mode.
+
+    Args:
+        file_path (str): Path to the file to check.
+
+    Returns:
+        bool: True if the file is open, False otherwise.
+    """
+
+    if not os.path.exists(file_path):
+        return False
+    try:
+        with open(file_path, "a"):
+            return False
+    except Exception:
+        return True 
+
 def write_to_xlsx(project_params, notes, headers, material_list, file_path):
+    if is_file_open(file_path):
+        print("File is already opened. Close the Excel file and run the command again.")
+        return
+    
     workbook = xlsxwriter.Workbook(file_path)
     main_worksheet = workbook.add_worksheet("Main")
     list_worksheet = workbook.add_worksheet("List")
@@ -36,7 +58,7 @@ def write_to_xlsx(project_params, notes, headers, material_list, file_path):
 
 
     # Main worksheet
-    project_param_keys = REVIT_PARAMS + ["Date", "Total weight", "Total price"]
+    project_param_keys = INFO_PARAMS + ["Date", "Total weight", "Total price"]
     for key in project_param_keys:
         param_name = project_params[key][0]
         param_value = project_params[key][1]

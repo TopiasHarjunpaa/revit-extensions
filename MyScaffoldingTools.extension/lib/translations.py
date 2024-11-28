@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-REVIT_PARAMS = ["Author", "Client Name", "Project Address", "Project Name", "Supervisor name"]
-HEADER_PARAMS = ["Product number", "Count", "Weight", "List price", "Product name FIN", "Product name ENG", "Product name SWE"]
-
 TRANSLATIONS = {
     "Author": {
         "FIN": "Suunnittelija",
