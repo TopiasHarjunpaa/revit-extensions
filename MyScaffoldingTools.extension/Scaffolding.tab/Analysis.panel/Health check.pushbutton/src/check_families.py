@@ -11,7 +11,7 @@ def check_family_identity_data(element):
             continue
     # TODO
 
-def check_families():
+def check_families(output):
     families_with_product_number = find_families_with_unique_product_numbers()
     
     return 1, 1

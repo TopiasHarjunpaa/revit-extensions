@@ -236,7 +236,7 @@ def check_viewports_have_correct_types(views, viewport_types):
 
     return points, checks
 
-def check_views():
+def check_views(output):
     view_points = 0
     view_checks = 0
 

@@ -55,7 +55,7 @@ def check_naming_conventions():
     return file_name_points, file_name_checks
 
 
-def check_file_properties():
+def check_file_properties(output):
     file_name_points, file_name_checks = check_naming_conventions()
 
     return file_name_points, file_name_checks
