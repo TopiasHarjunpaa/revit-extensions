@@ -1,114 +1,119 @@
 # -*- coding: utf-8 -*-
 
 from parameters import get_global_params, get_project_information_params, get_project_load_params
+from score_counter import ScoreCounter
 
-def check_global_parameters(output):
+counter = ScoreCounter()
+
+def evaluate_global_param(params_dict, param_name, min_value, max_value):
+    if param_name in params_dict:
+        if min_value <= params_dict[param_name] <= max_value:
+            counter.increment_points()
+            return "OK", "black"
+        else:
+            return "Invalid value! Must be between 1-3.", "red"
+    
+    return "Not found!", "orange"
+
+def check_global_parameters(outputter):
     """Finds all global parameters from the Revit project and stores them into dictionary.
         Checks whether all the necessary parameters exists and they are in correct range.
 
         Project language: Integer values 1, 2 or 3
         Company: Integer values 1, 2 or 3
         Show inspector name: Integer values 1 or 0 (Yes/No)
-    
-    Returns:
-        Tuple(Dict, Int): Dictionary with global parameters and points from the parameter check.
     """
 
+    outputter.print_md("### 1. Global parameter check:")
     global_params_dict = get_global_params()
-    points = 0
-    checks = 0
+    params_to_be_checked = [
+        ("Project language", 1, 3),
+        ("Company", 1, 3),
+        ("Show inspector name", 0, 1),
+    ]
     
-    if "Project language" in global_params_dict:
-        if global_params_dict["Project language"] >= 1 and global_params_dict["Project language"] <= 3:
-            response = "OK"
-            points += 1
-        else:
-            response = "Invalid value! Must be between 1-3."
-    else:
-        response = "Not found!"
-    
-    output.print_md("**Project language parameter**: {0}".format(response))
-    checks += 1
+    for param_name, min, max in params_to_be_checked:
+        response, color = evaluate_global_param(global_params_dict, param_name, min, max)
+        outputter.print_response(param_name, response, color)
+        counter.increment_checks()
 
-    #To be continued...
-    
-    if "Company" in global_params_dict:
-        if global_params_dict["Company"] >= 1 and global_params_dict["Company"] <= 3:
-            output.print_md("Company: OK")
-            points += 1
+def check_all_info_params_exists(params_dict, params_to_be_checked, outputter):
+    all_exists = True
+    for name in params_to_be_checked:
+        if name not in params_dict:
+            outputter.print_response(name, "Not found!", "red")
+            all_exists = False
         else:
-            output.print_md("Company: Invalid value! Must be between 1-3.")
-    else:
-        output.print_md("Company: Not found!")
-    checks += 1
+            counter.increment_points()
+        counter.increment_checks()
+    if all_exists:
+        outputter.print_response("Information parameters", "OK, all parameters exists in the project")
 
-    if "Show inspector name" in global_params_dict:
-        # This check should not be needed, since Revit UI has tickbox selection here.
-        if global_params_dict["Show inspector name"] == 0 or global_params_dict["Show inspector name"] == 1:
-            output.print_md("Show inspector name: OK")
-            points += 1
-        else:
-            output.print_md("Show inspector name: Invalid value! Must be Yes or No.")
-    else:
-        output.print_md("Show inspector name: Not found!")
-    checks += 1
-    
-    return global_params_dict, points, checks
-
-def check_project_params(output):
-    information_params_dict = get_project_information_params()
-    load_params_dict = get_project_load_params()
-    param_names = ["Author", "Client Name", "Project Address", "Project Name", "Supervisor name", "Inspector name", "Drawing type"]
-    information_points = 0
-    information_checks = 0
-    load_points = 0
-    load_checks = 0
-    
-    for name in param_names:
-        if name not in information_params_dict:
-            output.print_md("{}: Not found!".format(name))
-        else:
-            information_points += 1
-        information_checks += 1
-    
-    for key, value in information_params_dict.items():
-        # TODO: Add check if Show inspector name is 0, then missing value for Inspector name is okey...
+def check_info_param_values(params_dict, outputter):
+    for key, value in params_dict.items():
 
         if value is None or value == "":
-            output.print_md("{}: Value is missing.".format(key))
+            if key == "Inspector name":
+                outputter.print_response(key, "Value is missing. This is okey, if the project does not require inspector.", "red")
+            else:
+                outputter.print_response(key, "Value is missing.", "red")
         
         elif str(value).lower() == key.lower():
-            output.print_md("{0}: Default value [{1}] is used. Change this to the correct one.".format(key, value))
+            outputter.print_response(key, "Default value <b><i>{0}</i></b> is used. Change this to correct one.".format(value), "red")
         
         elif value == "Designer name":
-            output.print_md("{0}: Default value [{1}] is used. Change this to the correct one.".format(key, value))
+            outputter.print_response(key, "Default value <b><i>{0}</i></b> is used. Change this to correct one.".format(value), "red")
         
         else:
-            output.print_md("{}: OK".format(key))
-            information_points += 1
-        information_checks += 1
-    
-    if len(load_params_dict) == 36:
-        output.print_md("Number of Load parameters: OK")
-        load_points += 1
+            outputter.print_response("Information parameters", "OK, all parameters has values.")
+            counter.increment_points()
+        counter.increment_checks()
+
+def check_load_params(params_dict, number_of_load_params, outputter):
+    if len(params_dict) == number_of_load_params:
+        outputter.print_response("Number of Load parameters", "OK")
+        counter.increment_points()
     else:
-        output.print_md("Load parameters: {}/36. Load parameters are missing from the project".format(len(load_params_dict)))
-    load_checks += 1
+        outputter.print_response("Number of Load parameters", "{}/36. Load parameters are missing from the project".format(len(params_dict)), "red")
+    counter.increment_checks()
 
-    load_points += 1
-    for value in load_params_dict.values():
+    empty_values = False
+    for value in params_dict.values():
         if value is None or value == "" or value == "NA":
-            output.print_md("Load parameter values: Empty values are found. Calculate loads unless this is draft project.")
-            load_points -= 1
+            empty_values = True
+            outputter.print_response("Load parameter values", "Empty values are found. Calculate loads unless this is draft project.", "red")
             break
-    load_checks += 1
+    
+    if not empty_values:
+        outputter.print_response("Load parameter values", "OK, no empty values are found.")
+        counter.increment_points()
+    counter.increment_checks()
 
-    return information_params_dict, load_params_dict, information_points, information_checks, load_points, load_checks
 
-def check_params(output):
-    global_params, global_points, global_checks = check_global_parameters(output)
-    info_params, load_params, info_points, info_checks, load_points, load_checks = check_project_params(output)
-    project_param_points = global_points + info_points + load_points
-    project_param_checks = global_checks + info_checks + load_checks
+def check_project_params(outputter, number_of_load_params=38):
+    params_to_be_checked = [
+        "Author",
+        "Client Name",
+        "Project Address",
+        "Project Name",
+        "Supervisor name",
+        "Inspector name",
+        "Drawing type"
+    ]
 
-    return project_param_points, project_param_checks
+    information_params_dict = get_project_information_params(params_to_be_checked)
+    load_params_dict = get_project_load_params()
+    
+    outputter.print_md("### 2. Project information parameter check:")
+    check_all_info_params_exists(information_params_dict, params_to_be_checked, outputter)
+    check_info_param_values(information_params_dict, outputter)
+    
+    outputter.print_md("### 3. Load parameter check:")
+    check_load_params(load_params_dict, number_of_load_params, outputter)
+
+def check_params(outputter):
+    check_global_parameters(outputter)
+    check_project_params(outputter)
+    
+    points, checks, percentage = counter.get_score_percentage()
+    outputter.print_md("### <u>Project parameter check summary: Points gained {0} out of {1}. Score: {2}</u>".format(points, checks, percentage))

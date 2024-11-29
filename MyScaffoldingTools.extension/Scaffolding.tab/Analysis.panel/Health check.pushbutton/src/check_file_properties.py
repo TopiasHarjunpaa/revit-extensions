@@ -2,60 +2,51 @@
 
 import re
 from pyrevit import revit
+from file_properties import get_filename, contains_only_alphanumerics, starts_with_capital_letter, contains_too_many_underscores
+from score_counter import ScoreCounter
 
-def check_naming_conventions():
-    file_name_points = 0
-    file_name_checks = 0
+counter = ScoreCounter()
 
-    revit_file_path = revit.doc.PathName
+def check_naming_conventions(outputter):
+    revit_filename, revit_file_path = get_filename()
+
+    if revit_filename == "ProjectUnknown":
+        outputter.print_response("File is saved", "Revit file has no name. Save the file using proper naming conventions.", "red")
+    else:
+        outputter.print_response("File is saved", "OK")
+        counter.increment_points()
     
-    if len(revit_file_path) > 4:
-        revit_filename = revit_file_path[:-4].split("\\")[-1]
-        revit_filename = re.sub(r" \((ID [0-9]+)\)$", "", revit_filename)
-        file_name_points += 1
-        print("File saved: OK")
-    else:
-        revit_filename = "ProjectUknown"
-        print("File saved: Revit file has no name. Save the file using proper naming conventions.")
-    file_name_checks += 1
-
     if revit_file_path.startswith("M:\Telinekataja"):
-        print("File location: OK")
-        file_name_points += 1
+        outputter.print_response("File location", "OK")
+        counter.increment_points()
     else:
-        print("File location: Revit file is not stored into M-files.") 
-    file_name_checks += 1
+        outputter.print_response("File location", "Revit file is not stored into M-files.", "red") 
 
     naming_conventions = True
 
-    if re.search(r"[^a-zA-Z0-9_]", revit_filename):
-        print("Naming conventions: Filename contains characters other than alphanumerics.")
-        naming_conventions = False
+    if contains_only_alphanumerics(revit_filename):
+        counter.increment_points()
     else:
-        file_name_points += 1
-    file_name_checks += 1
+        naming_conventions = False
+        outputter.print_response("Naming conventions", "Filename contains characters other than alphanumerics.", "red") 
 
-    if revit_filename[0].islower():
-        print("Naming conventions: Filename does not start with a capital letter.")
-        naming_conventions = False
+    if starts_with_capital_letter(revit_filename):
+        counter.increment_points()
     else:
-        file_name_points += 1
-    file_name_checks += 1
+        outputter.print_response("Naming conventions", "Filename does not start with a capital letter.", "red") 
 
-    if revit_filename.count("_") > 1:
-        print("Naming conventions: Filename does have too many underscores. Use maximum of one underscore before phase name.")
-        naming_conventions = False
+    if contains_too_many_underscores(revit_filename):
+        counter.increment_points()
     else:
-        file_name_points += 1
-    file_name_checks += 1
-    
+        outputter.print_response("Naming conventions", "Filename does have too many underscores. Use maximum of one underscore before phase name.", "red") 
+
     if naming_conventions:
-        print("Naming conventions: OK")
+        outputter.print_response("Naming conventions", "OK")
+    counter.increment_checks(5)
 
-    return file_name_points, file_name_checks
 
+def check_file_properties(outputter):
+    check_naming_conventions(outputter)
 
-def check_file_properties(output):
-    file_name_points, file_name_checks = check_naming_conventions()
-
-    return file_name_points, file_name_checks
+    points, checks, percentage = counter.get_score_percentage()
+    outputter.print_md("### <u>File properties check summary: Points gained {0} out of {1}. Score: {2}</u>".format(points, checks, percentage))
