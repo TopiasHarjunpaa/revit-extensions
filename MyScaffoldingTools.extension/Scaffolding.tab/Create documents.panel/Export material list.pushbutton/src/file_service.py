@@ -32,9 +32,9 @@ def is_file_open(file_path):
     except Exception:
         return True 
 
-def write_to_xlsx(project_params, notes, headers, material_list, file_path):
+def write_to_xlsx(project_params, notes, headers, material_list, file_path, outputter):
     if is_file_open(file_path):
-        print("File is already opened. Close the Excel file and run the command again.")
+        outputter.print_response("Export cancelled", "File is already opened. Close the Excel file and run the command again", "red")
         return
     
     workbook = xlsxwriter.Workbook(file_path)

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
-import re
 from pyrevit import revit, DB
 from translations import TRANSLATIONS
-from parameters import get_language, get_project_information_params, HEADER_PARAMS
+from parameters import get_language, get_project_information_params, INFO_PARAMS, HEADER_PARAMS
+import file_properties as fp
+
 
 def get_project_language():
     """Retrieves only language name from the project. Ignores language index
@@ -17,7 +18,7 @@ def get_project_language():
 
     return language_name
 
-def format_output_filename(language="ENG"):
+def format_output_filename(outputter, language="ENG"):
     """Formats material list filename based on Revit model file name. Additionally, makes few simple checks if the
     predefined Revit file naming conventions are followed and notifies user if conventions are not followed.
 
@@ -37,57 +38,58 @@ def format_output_filename(language="ENG"):
     Returns:
         str: Formatted output filaname for material list
     """
+    revit_filename = fp.get_filename()[0]
+
+    if revit_filename == "ProjectUnknown":
+        outputter.print_response("Revit file has no name", "In order to ensure correct naming convention, save the Revit file before proceeding material list export.", "red")
     
-    revit_file_path = revit.doc.PathName
-    
-    if len(revit_file_path) > 4:
-        revit_filename = revit_file_path[:-4].split("\\")[-1]
-    else:
-        revit_filename = "ProjectUknown"
-        print("Revit file has no name. In order to ensure correct naming convention, save the Revit file before proceeding material list export.")
+    if not fp.contains_only_alphanumerics(revit_filename):
+        outputter.print_response("File naming conventions not followed", "Filename contains characters other than alphanumerics.", "red") 
 
-    revit_filename = re.sub(r" \((ID [0-9]+)\)$", "", revit_filename)
+    if not fp.starts_with_capital_letter(revit_filename):
+        outputter.print_response("File naming conventions not followed", "Filename does not start with a capital letter.", "red") 
 
-    material_list_text = "MaterialList" if language == "ENG" else TRANSLATIONS["Material list"].get(language, "")
-    underscore_count = revit_filename.count("_")
-    
-    if re.search(r"[^a-zA-Z0-9_]", revit_filename):
-        print("File naming convention is not followed!")
-        print("Filename contains characters other than alphanumerics")
-        print("---")
+    if not fp.contains_too_many_underscores(revit_filename):
+        outputter.print_response("File naming conventions not followed", "Filename does have too many underscores. Use maximum of one underscore before phase name.", "red")   
 
+    material_list_text = TRANSLATIONS["Material list"].get(language, "ENG")
 
-    if revit_filename[0].islower():
-        print("File naming convention is not followed!")
-        print("Filename does not start with a capital letter.")
-        print("---")
-
-    if underscore_count > 1:
-        print("File naming convention is not followed!")
-        print("Filename does have too many underscores. Use maximum of one underscore before phase name")
-        print("---")       
-
-    if underscore_count == 1:
+    if revit_filename.count("_") == 1:
         splitted_name = revit_filename.split("_")
         material_list_filename = splitted_name[0] + "_" + material_list_text + "_" + splitted_name[1] + ".xlsx"
         return material_list_filename
 
     return revit_filename + "_" + material_list_text + ".xlsx"
 
-def get_project_parameters(language="ENG", total_weight="NA", total_price="NA"):
+def get_project_parameters(outputter, language="ENG", total_weight="NA", total_price="NA"):
+    """Finds project information parameters from the Revit project. Checks whether
+    necessary parameters exists and adds date and totals parameters to the same dictionary. 
+    Changes parameter names (key values) with translated parameter names based on the selected language.
+
+    Args:
+        language (str, optional): Language selection. Defaults to "ENG".
+        total_weight (str, optional): Total weight of the material. Defaults to "NA".
+        total_price (str, optional): Total price of the material. Defaults to "NA".
+
+    Returns:
+        Dict: Dictionary with translated keys and project parameter values.
+    """
+
     translated_project_parameters = {}
     project_params = get_project_information_params()
 
-    # Add translated parameters from Revit
+    for header_name in INFO_PARAMS:
+        if header_name not in project_params:
+            project_params[header_name] = "NA"
+            outputter.print_response(header_name, "Not found!", "red")
+
     for key in project_params.keys():
         translated_key = TRANSLATIONS[key].get(language, key)
         translated_project_parameters[key] = (translated_key, project_params.get(key, "NA"))
 
-    # Add date
     date_key = TRANSLATIONS["Date"].get(language, "Date")
     translated_project_parameters["Date"] = (date_key, date.today().strftime('%Y-%m-%d'))
 
-    # Add translated totals
     totals = {
         "Total weight": "{:.2f} kg".format(total_weight).replace(".", ","),
         "Total price": "{:.2f} €".format(total_price).replace(".", ",")

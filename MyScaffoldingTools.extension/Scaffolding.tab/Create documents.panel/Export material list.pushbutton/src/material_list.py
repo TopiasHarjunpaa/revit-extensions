@@ -29,9 +29,9 @@ def format_anchor_ledger_name(count, ledger_name):
 
     return formatted_name
 
-def calculate_wire_sets(length, set_40=0, set_60=0):
+def calculate_wire_sets(length, outputter, set_40=0, set_60=0):
 	if length > 2000000: # Just to prevent memory errors. Input shouldn't be this high anyways.
-		print("Desired safety wire length is more than 2 kilometers. Only 60 m sets are used.")
+		outputter.print_response("Safety wire system", "Desired safety wire length is more than 2 kilometers. Only 60 m sets are used.", "red")
 		return set_40, int(math.ceil(float(length) / 600000))
 	
 	if length <= 0:
@@ -52,7 +52,7 @@ def calculate_wire_sets(length, set_40=0, set_60=0):
 	return result_40 if result_40[0] >= result_60[0] else result_60
 
 
-def create_material_list(schedule_data, master_data, language="ENG"):
+def create_material_list(outputter, schedule_data, master_data, language="ENG"):
 	material_list = []
 	language_index = {"FIN": 2, "ENG": 3, "SWE": 4}[language]
 	total_weight = 0.00
@@ -113,7 +113,7 @@ def create_material_list(schedule_data, master_data, language="ENG"):
 		
 		if product_number == "VALJAS":
 			wire_set_length = float(product[6])
-			number_of_40_sets, number_of_60_sets = calculate_wire_sets(wire_set_length)
+			number_of_40_sets, number_of_60_sets = calculate_wire_sets(wire_set_length, outputter)
 			safety_wire_sets = (safety_wire_sets[0] + count * number_of_40_sets, safety_wire_sets[1] + count * number_of_60_sets)
 			found = True # Do not add this row into material list
 
