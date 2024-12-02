@@ -33,6 +33,7 @@ def format_output_filename(outputter, language="ENG"):
     6. Adds "xlsx" suffix
 
     Args:
+        outputter: Outputter class to print messages.
         language (str, optional): Language selection. Defaults to "ENG".
 
     Returns:
@@ -67,6 +68,7 @@ def get_project_parameters(outputter, language="ENG", total_weight="NA", total_p
     Changes parameter names (key values) with translated parameter names based on the selected language.
 
     Args:
+        outputter: Outputter class to print messages.
         language (str, optional): Language selection. Defaults to "ENG".
         total_weight (str, optional): Total weight of the material. Defaults to "NA".
         total_price (str, optional): Total price of the material. Defaults to "NA".
