@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import re
-from pyrevit import revit
-from file_properties import get_filename, contains_only_alphanumerics, starts_with_capital_letter, contains_too_many_underscores
+import file_properties as fp
 from score_counter import ScoreCounter
 
 counter = ScoreCounter()
 
 def check_naming_conventions(outputter):
-    revit_filename, revit_file_path = get_filename()
+    revit_filename, revit_file_path = fp.get_filename()
 
     if revit_filename == "ProjectUnknown":
         outputter.print_response("File is saved", "Revit file has no name. Save the file using proper naming conventions.", "red")
@@ -24,20 +22,22 @@ def check_naming_conventions(outputter):
 
     naming_conventions = True
 
-    if contains_only_alphanumerics(revit_filename):
+    if fp.contains_only_alphanumerics(revit_filename):
         counter.increment_points()
     else:
         naming_conventions = False
         outputter.print_response("Naming conventions", "Filename contains characters other than alphanumerics.", "red") 
 
-    if starts_with_capital_letter(revit_filename):
+    if fp.starts_with_capital_letter(revit_filename):
         counter.increment_points()
     else:
+        naming_conventions = False
         outputter.print_response("Naming conventions", "Filename does not start with a capital letter.", "red") 
 
-    if contains_too_many_underscores(revit_filename):
+    if fp.contains_too_many_underscores(revit_filename):
         counter.increment_points()
     else:
+        naming_conventions = False
         outputter.print_response("Naming conventions", "Filename does have too many underscores. Use maximum of one underscore before phase name.", "red") 
 
     if naming_conventions:

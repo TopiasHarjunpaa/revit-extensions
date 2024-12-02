@@ -2,6 +2,9 @@
 
 from pyrevit import revit, DB
 from products import find_families_with_unique_product_numbers
+from score_counter import ScoreCounter
+
+counter = ScoreCounter()
 
 def check_family_identity_data(element):
     for param in ["Product name (FI)", "Product name (EN)", "Product name (SWE)"]:
@@ -11,7 +14,9 @@ def check_family_identity_data(element):
             continue
     # TODO
 
-def check_families(output):
-    families_with_product_number = find_families_with_unique_product_numbers()
+def check_families(outputter):
+    counter.increment_checks()
+    counter.increment_points()
     
-    return 1, 1
+    points, checks, percentage = counter.get_score_percentage()
+    outputter.print_md("### <u>Family check summary: Points gained {0} out of {1}. Score: {2}</u>".format(points, checks, percentage))

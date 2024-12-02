@@ -2,6 +2,9 @@
 
 import re
 from pyrevit import revit, DB
+from score_counter import ScoreCounter
+
+counter = ScoreCounter()
 
 def get_project_views_and_viewports():
     views = {}
@@ -33,38 +36,42 @@ def get_project_views_and_viewports():
 
     return views, viewport_types
 
-def check_section_names_and_get_sections_in_viewports(views):
+def check_callout_name(section_name, outputter):
+    if re.match(r"^DET([1-9]|[1-9][0-9])$", section_name):
+        counter.increment_points()
+        outputter.print_response("Callout name", "<b><i>{0}</i></b> is correctly named.".format(section_name))
+    else:
+        outputter.print_response("Callout name", "<b><i>{0}</i></b> is incorrectly named. Callout section should be named as DET[number] whereas number is value between 1 - 99.".format(section_name), "red")
+    counter.increment_checks() 
+
+def check_section_name(section_name, outputter):
+    if re.match(r"^[A-Z1-9]$", section_name):
+        counter.increment_points()
+        outputter.print_response("Section name", "<b><i>{0}</i></b> is correctly named.".format(section_name))
+    else:
+        outputter.print_response("Section name", "<b><i>{0}</i></b> is incorrectly named. Use only single character and capitalized alphanumberic, such as A, B, 1 or 2.".format(section_name), "red")
+    counter.increment_checks() 
+
+def check_section_names_and_get_sections_in_viewports(views, outputter):
     sections_in_viewports = []
-    points = 0
-    checks = 0
 
     if "Section" in views and len(views["Section"]) > 0:
-        points += 1
+        counter.increment_points()
         for section in views["Section"]:
             section_name = section[0].Name
 
             if section[0].IsCallout:
-                if re.match(r"^DET([1-9]|[1-9][0-9])$", section_name):
-                    points += 1
-                    print("Section name: Correct name [{}].".format(section_name))
-                else:
-                    print("Section name: Incorrect name [{}]. Callout section should be named as DET[number] whereas number is value between 1 - 99.".format(section_name))
-                checks += 1                
+                check_callout_name(section_name, outputter)             
             else:
-                if re.match(r"^[A-Z1-9]$", section_name):
-                    points += 1
-                    print("Section name: Correct name [{}].".format(section_name))
-                else:
-                    print("Section name: Incorrect name [{}]. Use only single character and capitalized alphanumberic, such as A, B, 1 or 2.".format(section_name))
-                checks += 1
+                check_section_name(section_name, outputter)
 
             if section[1]:
                 sections_in_viewports.append(section[0])
     else:
-        print("Section name: No section views found on this project.")
-    checks += 1
+        outputter.print_response("Section name", "No section views found on this project. At least one section should be used!", "red")
+    counter.increment_checks()
     
-    return sections_in_viewports, points, checks
+    return sections_in_viewports
 
 def contains_annotation(view, annotation_name):
     annotations = DB.FilteredElementCollector(revit.doc, view.Id)\
@@ -89,43 +96,26 @@ def contains_family_with_parameter_name(view, parameter_name):
     return False
 
 
-def check_annotations_used_in_sections(sections_in_viewports):
-    points = len(sections_in_viewports) * 3
-    checks = len(sections_in_viewports) * 3
+def check_annotations_in_section(view, parameter_name, component_name, annotation_name, outputter):
+    contains_family = contains_family_with_parameter_name(view, parameter_name)
+    contains_tag = contains_annotation(view, annotation_name)
 
+    if contains_family and not contains_tag:
+        outputter.print_response("Anchor tags in section <b><i>{0}</i></b>".format(view.Name), "Section has {0}, but no {1} -tags".format(component_name, annotation_name), "red")
+    elif not contains_family:
+        outputter.print_response("Anchor tags in section <b><i>{0}</i></b>".format(view.Name), "OK. Section does not have any {0}.".format(component_name))
+        counter.increment_points()
+    else:
+        outputter.print_response("Anchor tags in section <b><i>{0}</i></b>".format(view.Name), "OK")
+        counter.increment_points()
+    counter.increment_checks()
+
+def check_annotations_used_in_sections(sections_in_viewports, outputter):
     for section in sections_in_viewports:
-        contains_anchor_families = contains_family_with_parameter_name(section, "Max X+")
-        contains_base_plate_families = contains_family_with_parameter_name(section, "Max Z+")
-        contains_roof_system = contains_family_with_parameter_name(section, "Fill type")
-        contains_anchor_tags = contains_annotation(section, "Anchor")
-        contains_leg_tags = contains_annotation(section, "Leg")
-        contains_lifting_points_tags = contains_annotation(section, "Lifting points")
-        
-        if contains_anchor_families and not contains_anchor_tags:
-            print("Anchor tags in section [{}]: Incorrect. Section has anchoring components, but no anchor tags.".format(section.Name))
-            points -= 1
-        elif not contains_anchor_families:
-            print("Anchor tags in section [{}]: OK. Section does not have any anchors.".format(section.Name))
-        else:
-            print("Anchor tags in section [{}]: OK".format(section.Name))
+        check_annotations_in_section(section, "Max X+", "anchoring components", "Anchor", outputter)
+        check_annotations_in_section(section, "Max Z+", "base plates", "Leg", outputter)
+        check_annotations_in_section(section, "Fill type", "roof system", "Lifting point", outputter)
 
-        if contains_base_plate_families and not contains_leg_tags:
-            print("Leg tags in section [{}]: Incorrect. Section has base plates, but no leg tags.".format(section.Name))
-            points -= 1
-        elif not contains_base_plate_families:
-            print("Leg tags in section [{}]: OK. Section does not have any base plates.".format(section.Name))
-        else:
-            print("Leg tags in section [{}]: OK".format(section.Name))
-
-        if contains_roof_system and not contains_lifting_points_tags:
-            print("Lifting point tags in section [{}]: Incorrect. Section has roof system, but no lifting point tags.".format(section.Name))
-            points -= 1
-        elif not contains_roof_system:
-            print("Lifting point in section [{}]: OK. Section does not have roof system.".format(section.Name))
-        else:
-            print("Lifting point in section [{}]: OK".format(section.Name))
-
-    return points, checks
 
 def check_material_list_headers(schedule, headers, num_of_cols):
     if len(headers) == num_of_cols:
@@ -236,25 +226,20 @@ def check_viewports_have_correct_types(views, viewport_types):
 
     return points, checks
 
-def check_views(output):
-    view_points = 0
-    view_checks = 0
-
+def check_views(outputter):
     views, viewport_types = get_project_views_and_viewports()
-    sections_in_viewports, points, checks = check_section_names_and_get_sections_in_viewports(views)
-    view_points += points
-    view_checks += checks
+    
+    outputter.print_md("### 1. Section name check:")
+    sections_in_viewports = check_section_names_and_get_sections_in_viewports(views, outputter)
+    check_annotations_used_in_sections(sections_in_viewports, outputter)
 
-    points, checks = check_annotations_used_in_sections(sections_in_viewports)
-    view_points += points
-    view_checks += checks
+    outputter.print_md("### 2. Viewport type check:")
+    # To be continued...
+    check_viewports_have_correct_types(views, viewport_types)
 
     points, checks = check_schedule_names_and_get_material_schedule(views)
-    view_points += points
-    view_checks += checks
 
-    points, checks = check_viewports_have_correct_types(views, viewport_types)
-    view_points += points
-    view_checks += checks
 
-    return view_points, view_checks
+
+    points, checks, percentage = counter.get_score_percentage()
+    outputter.print_md("### <u>Project view check summary: Points gained {0} out of {1}. Score: {2}</u>".format(points, checks, percentage))
