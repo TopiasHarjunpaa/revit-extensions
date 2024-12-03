@@ -21,6 +21,10 @@ class Outputter(object):
     def print_score_summary(self, summary_name, score, score_header="Score"):
         points, checks, percentage = score
         self.out.print_md("### <u>{0}: Points gained {1} out of {2}. {4}: {3}</u>".format(summary_name, points, checks, percentage, score_header))
+    
+    def print_list(self, items):
+        for item in items:
+            self.out.print_md("- {}".format(item))
 
     def print_pie_chart(self, points, checks):
         """
