@@ -31,3 +31,12 @@ class ScoreCounter:
         
         return self.points, self.checks, "{:.1f} %".format(percentage)
 
+    def __add__(self, other):
+        """Allow adding two ScoreCounter instances."""
+        
+        if not isinstance(other, ScoreCounter):
+            return NotImplemented
+        combined = ScoreCounter()
+        combined.points = self.points + other.points
+        combined.checks = self.checks + other.checks
+        return combined
