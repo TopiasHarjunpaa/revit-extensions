@@ -48,7 +48,4 @@ def check_naming_conventions(outputter):
 def check_file_properties(outputter):
     check_naming_conventions(outputter)
 
-    points, checks, percentage = counter.get_score_percentage()
-    outputter.print_md("### <u>File properties check summary: Points gained {0} out of {1}. Score: {2}</u>".format(points, checks, percentage))
-
     return counter

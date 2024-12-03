@@ -114,8 +114,5 @@ def check_project_params(outputter, number_of_load_params=38):
 def check_params(outputter):
     check_global_parameters(outputter)
     check_project_params(outputter)
-    
-    points, checks, percentage = counter.get_score_percentage()
-    outputter.print_md("### <u>Project parameter check summary: Points gained {0} out of {1}. Score: {2}</u>".format(points, checks, percentage))
 
     return counter

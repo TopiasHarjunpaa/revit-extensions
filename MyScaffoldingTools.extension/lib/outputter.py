@@ -17,6 +17,10 @@ class Outputter(object):
         """
 
         self.out.print_html("<p><b>{0}:</b> <span style='color:{1};'>{2}</span></p>".format(check_name, color, response))
+    
+    def print_score_summary(self, summary_name, score, score_header="Score"):
+        points, checks, percentage = score
+        self.out.print_md("### <u>{0}: Points gained {1} out of {2}. {4}: {3}</u>".format(summary_name, points, checks, percentage, score_header))
 
     def print_pie_chart(self, points, checks):
         """
