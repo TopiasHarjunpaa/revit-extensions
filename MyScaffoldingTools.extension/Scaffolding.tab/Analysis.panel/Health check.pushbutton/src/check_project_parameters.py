@@ -70,11 +70,11 @@ def check_info_param_values(params_dict, outputter):
         counter.increment_checks()
 
 def check_load_params(params_dict, number_of_load_params, outputter):
-    if len(params_dict) == number_of_load_params:
+    if len(params_dict) >= number_of_load_params:
         outputter.print_response("Number of Load parameters", "OK")
         counter.increment_points()
     else:
-        outputter.print_response("Number of Load parameters", "{}/36. Load parameters are missing from the project".format(len(params_dict)), "red")
+        outputter.print_response("Number of Load parameters", "{}/39. Load parameters are missing from the project".format(len(params_dict)), "red")
     counter.increment_checks()
 
     empty_values = False
@@ -90,7 +90,7 @@ def check_load_params(params_dict, number_of_load_params, outputter):
     counter.increment_checks()
 
 
-def check_project_params(outputter, number_of_load_params=38):
+def check_project_params(outputter, number_of_load_params=39):
     params_to_be_checked = [
         "Author",
         "Client Name",
