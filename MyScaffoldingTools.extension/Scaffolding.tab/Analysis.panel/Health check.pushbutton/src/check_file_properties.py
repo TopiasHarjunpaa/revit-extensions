@@ -26,20 +26,31 @@ def check_naming_conventions(outputter):
         counter.increment_points()
     else:
         naming_conventions = False
-        outputter.print_response("Naming conventions", "Filename contains characters other than alphanumerics.", "red") 
+        outputter.print_response(
+            "Naming conventions",
+            "Filename <b><i>{0}</i></b> contains characters other than alphanumerics.".format(revit_filename),
+            "red"
+        ) 
 
     if fp.starts_with_capital_letter(revit_filename):
         counter.increment_points()
     else:
         naming_conventions = False
-        outputter.print_response("Naming conventions", "Filename does not start with a capital letter.", "red") 
+        outputter.print_response(
+            "Naming conventions",
+            "Filename <b><i>{0}</i></b> does not start with a capital letter.".format(revit_filename),
+            "red"
+        )
 
     if fp.contains_too_many_underscores(revit_filename):
         counter.increment_points()
     else:
         naming_conventions = False
-        outputter.print_response("Naming conventions", "Filename does have too many underscores. Use maximum of one underscore before phase name.", "red") 
-
+        outputter.print_response(
+            "Naming conventions",
+            "Filename <b><i>{0}</i></b> does have too many underscores. Use maximum of one underscore before phase name.".format(revit_filename),
+            "red"
+        )
     if naming_conventions:
         outputter.print_response("Naming conventions", "OK")
     counter.increment_checks(5)

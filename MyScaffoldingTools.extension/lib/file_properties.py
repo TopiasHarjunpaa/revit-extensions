@@ -15,7 +15,7 @@ def get_filename():
     return revit_filename, revit_file_path
 
 def contains_only_alphanumerics(filename):
-    return True if re.search(r"[^a-zA-Z0-9_]", filename) else False
+    return False if re.search(r"[^a-zA-Z0-9_]", filename) else True
 
 def starts_with_capital_letter(filename):
     return False if filename[0].islower() else True
