@@ -65,7 +65,7 @@ def check_info_param_values(params_dict, outputter):
             outputter.print_response(key, "Default value <b><i>{0}</i></b> is used. Change this to correct one.".format(value), "red")
         
         else:
-            outputter.print_response("Information parameters", "OK, all parameters has values.")
+            outputter.print_response(key, "OK")
             counter.increment_points()
         counter.increment_checks()
 
