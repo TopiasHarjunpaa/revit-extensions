@@ -14,6 +14,7 @@ WHITE = DB.Color(255, 255, 255)
 DOUBLE_BRACING = "DOUBLE"
 ROOF_SYSTEM = "ROOF"
 ANCHOR = "ANCHOR"
+LIFTING_POINT = "LIFTING POINT"
 
 def get_color_for_product_number(product_number, color_rules):
     """Returns color for certain product based on set of color rules.
@@ -53,7 +54,8 @@ def blend_color_with_black(color, blend_factor):
 
 def apply_color_overrides(element, product_number, ogs, solid_fill_pattern, color_rules, blend_factor):
     """Applies graphical overrides (surface and projection lines) to the scaffolding families. 
-    Product number is used to determine the color coding rules.
+    Product number is used to determine the color coding rules. Projection line color blending is excluded
+    from the lifting points (ie. lifting point slings should have the original color).
 
     Args:
         element: Autodesk.Revit.DB Element class.
@@ -68,7 +70,7 @@ def apply_color_overrides(element, product_number, ogs, solid_fill_pattern, colo
     ogs.SetSurfaceForegroundPatternId(solid_fill_pattern.Id)
     ogs.SetSurfaceForegroundPatternColor(color)
 
-    projection_color = blend_color_with_black(color, blend_factor)
+    projection_color = color if product_number == LIFTING_POINT else blend_color_with_black(color, blend_factor)
     ogs.SetProjectionLineColor(projection_color)
     
     apply_color_overrides_recursive(element, ogs)
@@ -118,16 +120,13 @@ def color_code_components(color_rules):
         t.Commit()
 
 def reset_graphic_overrides():
-    """Resets graphical overrides to the Revit default settings. This is called from another extension module
-    through distinct push button.
-    """
+    """Resets all graphical overrides in the active view to the Revit default settings."""
 
-    elements_with_product_number = find_scaffolding_components()
-    
     ogs = DB.OverrideGraphicSettings()
+    active_view = revit.active_view
 
     with DB.Transaction(revit.doc, "Reset Graphics") as t:
         t.Start()
-        for element, _ in elements_with_product_number:
-            revit.active_view.SetElementOverrides(element.Id, ogs)
+        for element_id in DB.FilteredElementCollector(revit.doc, active_view.Id).ToElementIds():
+            active_view.SetElementOverrides(element_id, ogs)
         t.Commit()

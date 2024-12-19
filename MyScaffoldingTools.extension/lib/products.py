@@ -2,7 +2,6 @@
 
 from pyrevit import revit, DB
 
-
 def get_product_number(element):
     """Finds family parameter named as Product number and returns it as a string.
     In Revit scaffolding families, product number should be always shared parameter,
@@ -64,6 +63,7 @@ def sort_elements(elements, double_bracing = None, roof_system = None, anchor = 
     Items which are placed at the end of the list are main families which contains sub families and
     are wanted to be colored in same color than the main family.
 
+    4. Lifting points (sub family of roof system)
     3. Roof system main family
     2. Diagonal braces main family if both diagonals are checked active
     1. Anchoring main family 
@@ -81,6 +81,8 @@ def sort_elements(elements, double_bracing = None, roof_system = None, anchor = 
     def get_sort_key(element):
         product_number = element[1]
 
+        if product_number == "LIFTING POINT":
+            return 4
         if product_number == roof_system:
             return 3
         if product_number == double_bracing:
@@ -117,6 +119,7 @@ def find_scaffolding_components(double_bracing = None, roof_system = None, ancho
         is_double_bracing = False if double_bracing is None else has_both_diagonal_params(element)
         is_roof_system = False if roof_system is None else contains_family_with_parameter_name(element, "Fill type")
         is_anchor = False if anchor is None else contains_family_with_parameter_name(element, "Max X+")
+        is_lifting_point = contains_family_with_parameter_name(element, "Right lifting point Y")
         
         if product_number:
             scaffolding_families.append((element, product_number))
@@ -129,6 +132,10 @@ def find_scaffolding_components(double_bracing = None, roof_system = None, ancho
         
         if is_anchor:
             scaffolding_families.append((element, anchor))
+        
+        if is_lifting_point:
+            "contains lp"
+            scaffolding_families.append((element, "LIFTING POINT"))
     
     return sort_elements(scaffolding_families, double_bracing, roof_system, anchor)
 

@@ -4,12 +4,13 @@ from color_code import (
     RED,
     WHITE,
     DOUBLE_BRACING,
-    ANCHOR
+    ANCHOR,
+    LIFTING_POINT
 )
 
 color_rules = [
     (MAGENTA, [DOUBLE_BRACING]),
-    (RED, [ANCHOR]),
+    (RED, [ANCHOR, LIFTING_POINT]),
     WHITE
 ]
 

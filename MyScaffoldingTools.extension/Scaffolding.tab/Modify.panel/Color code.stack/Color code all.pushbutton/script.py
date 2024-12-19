@@ -8,7 +8,8 @@ from color_code import (
     BLUE,
     DOUBLE_BRACING,
     ROOF_SYSTEM,
-    ANCHOR
+    ANCHOR,
+    LIFTING_POINT
 )
 
 color_rules = [
@@ -16,7 +17,7 @@ color_rules = [
     (LIGHT_GREEN, ["3801", "3862", "3863", "3812", "3802", "2675"]),
     (GREEN, ["3878", "3880"]),
     (ORANGE, ["2640", ROOF_SYSTEM]),
-    (RED, [ANCHOR]),
+    (RED, [ANCHOR, LIFTING_POINT]),
     BLUE
 ]
 
